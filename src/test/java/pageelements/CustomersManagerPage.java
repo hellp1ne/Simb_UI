@@ -16,10 +16,10 @@ public class CustomersManagerPage {
     private final WebDriverWait wait;
 
     // Локаторы элементов
-    private final By firstNameColumn = By.xpath("//td[@class='ng-binding'][1]");
-    private final By lastNameColumn = By.xpath("//td[@class='ng-binding'][3]");
-    private final By postCodeColumn = By.xpath("//td[@class='ng-binding'][4]");
-    private final By accountNumberColumn = By.xpath("//td[@class='ng-binding'][2]");
+    private final By firstNameColumn = By.xpath("//tbody/tr/td[1]");
+    private final By lastNameColumn = By.xpath("//tbody/tr/td[2]");
+    private final By postCodeColumn = By.xpath("//tbody/tr/td[3]");
+    private final By accountNumberColumn = By.xpath("//tbody/tr/td[4]");
     private final By deleteButtons = By.xpath("//button[contains(text(),'Delete')]");
     private final By firstNameSortButton = By.xpath("//a[contains(text(),'First Name')]");
     private final By searchField = By.xpath("//input[@placeholder='Search Customer']");
@@ -45,19 +45,29 @@ public class CustomersManagerPage {
 
     // Метод для удаления пользователя со средней длиной имени с возвратом его данных
     public NewCustomerData.CustomerData deleteUserWithAverageNameLength() {
+        // Получаем все элементы с явным ожиданием
         List<WebElement> firstNameElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn));
-        List<WebElement> lastNameElements = driver.findElements(lastNameColumn);
-        List<WebElement> postCodeElements = driver.findElements(postCodeColumn);
-        List<WebElement> deleteBtns = driver.findElements(deleteButtons);
+        List<WebElement> lastNameElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(lastNameColumn));
+        List<WebElement> postCodeElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(postCodeColumn));
+        List<WebElement> deleteBtns = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(deleteButtons));
 
         if (firstNameElements.isEmpty()) {
             return null;
         }
 
+        // Проверяем, что все списки имеют одинаковый размер
+        if (firstNameElements.size() != lastNameElements.size() ||
+                firstNameElements.size() != postCodeElements.size() ||
+                firstNameElements.size() != deleteBtns.size()) {
+            return null;
+        }
+
         // Создаем список пар (имя, длина имени)
-        List<Map.Entry<String, Integer>> nameEntries = firstNameElements.stream()
-                .map(element -> Map.entry(element.getText(), element.getText().length()))
-                .collect(Collectors.toList());
+        List<Map.Entry<String, Integer>> nameEntries = new ArrayList<>();
+        for (WebElement element : firstNameElements) {
+            String name = element.getText();
+            nameEntries.add(Map.entry(name, name.length()));
+        }
 
         // Вычисляем среднюю длину имен
         double averageLength = nameEntries.stream()
@@ -67,35 +77,27 @@ public class CustomersManagerPage {
 
         // Находим имя с длиной, ближайшей к средней
         Optional<Map.Entry<String, Integer>> closestEntry = nameEntries.stream()
-                .min(Comparator.comparingDouble(
-                        entry -> Math.abs(entry.getValue() - averageLength)
-                ));
+                .min(Comparator.comparingDouble(entry -> Math.abs(entry.getValue() - averageLength)));
 
         if (closestEntry.isPresent()) {
             String nameToDelete = closestEntry.get().getKey();
-            int index = -1;
 
             // Находим индекс пользователя для удаления
             for (int i = 0; i < firstNameElements.size(); i++) {
                 if (firstNameElements.get(i).getText().equals(nameToDelete)) {
-                    index = i;
-                    break;
+                    // Сохраняем данные перед удалением
+                    NewCustomerData.CustomerData deletedCustomer = new NewCustomerData.CustomerData(
+                            nameToDelete,
+                            lastNameElements.get(i).getText(),
+                            postCodeElements.get(i).getText()
+                    );
+
+                    // Удаляем пользователя
+                    deleteBtns.get(i).click();
+                    wait.until(ExpectedConditions.stalenessOf(firstNameElements.get(i)));
+
+                    return deletedCustomer;
                 }
-            }
-
-            if (index >= 0) {
-                // Сохраняем данные перед удалением
-                NewCustomerData.CustomerData deletedCustomer = new NewCustomerData.CustomerData(
-                        nameToDelete,
-                        lastNameElements.get(index).getText(),
-                        postCodeElements.get(index).getText()
-                );
-
-                // Удаляем пользователя
-                deleteBtns.get(index).click();
-                wait.until(ExpectedConditions.stalenessOf(firstNameElements.get(index)));
-
-                return deletedCustomer;
             }
         }
         return null;
@@ -109,8 +111,6 @@ public class CustomersManagerPage {
         sortBtn.click();
         wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn)));
 
-        // Второй клик - сортировка по убыванию
-        sortBtn.click();
         List<String> namesAfterSort = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn))
                 .stream()
                 .map(WebElement::getText)
@@ -129,13 +129,15 @@ public class CustomersManagerPage {
         searchInput.clear();
         searchInput.sendKeys(firstName);
         wait.until(ExpectedConditions.textToBePresentInElementValue(searchField, firstName));
+        if(firstNameColumn != null){
+            List<String> foundNames = driver.findElements(firstNameColumn)
+                    .stream()
+                    .map(WebElement::getText)
+                    .collect(Collectors.toList());
 
-        List<String> foundNames = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn))
-                .stream()
-                .map(WebElement::getText)
-                .collect(Collectors.toList());
-
-        return foundNames.stream().anyMatch(name -> name.equals(firstName));
+            return foundNames.stream().anyMatch(name -> name.equals(firstName));
+        }
+        return false;
     }
 
     // Метод для получения всех имен пользователей
@@ -155,15 +157,10 @@ public class CustomersManagerPage {
     }
 
     // Метод для проверки наличия пользователя в таблице
-    public boolean isCustomerPresent(String firstName, String lastName, String postCode) {
-        List<WebElement> firstNames = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn));
-        List<WebElement> lastNames = driver.findElements(lastNameColumn);
-        List<WebElement> postCodes = driver.findElements(postCodeColumn);
-
+    public boolean isCustomerPresent(String firstName) {
+        List<WebElement> firstNames = driver.findElements(firstNameColumn);
         for (int i = 0; i < firstNames.size(); i++) {
-            if (firstNames.get(i).getText().equals(firstName) &&
-                    lastNames.get(i).getText().equals(lastName) &&
-                    postCodes.get(i).getText().equals(postCode)) {
+            if (firstNames.get(i).getText().equals(firstName)) {
                 return true;
             }
         }

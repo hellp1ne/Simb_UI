@@ -54,13 +54,24 @@ public class AddCustomerManagerPage {
     public void fillCustomerDetails() {
         NewCustomerData.CustomerData data = customerData.generateCustomerData();
         createSpecificCustomer(data);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(data.firstName);
+        driver.findElement(lastNameField).sendKeys(data.lastName);
+        driver.findElement(postCodeField).sendKeys(data.postCode);
     }
 
-    private void clickAddCustomerButton() {
+    public void fillingFields(NewCustomerData.CustomerData data) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstNameField)).sendKeys(data.firstName);
+        driver.findElement(lastNameField).sendKeys(data.lastName);
+        driver.findElement(postCodeField).sendKeys(data.postCode);
+        System.out.println(data.postCode);
+        System.out.println(data.firstName);
+    }
+
+    public void clickAddCustomerButton() {
         wait.until(ExpectedConditions.elementToBeClickable(addCustomerBtn)).click();
     }
 
-    private void handleAlert() {
+    public void handleAlert() {
         wait.until(ExpectedConditions.alertIsPresent());
         driver.switchTo().alert().accept();
     }
