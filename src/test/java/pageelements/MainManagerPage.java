@@ -1,5 +1,6 @@
 package pageelements;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,14 +20,14 @@ public class MainManagerPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // Нажать кнопку Add Customer и дождаться изменения URL
+    @Step("Нажатие кнопки 'Add Customer'")
     public void clickAddCustomer() {
         WebElement addCustomerBtn = wait.until(ExpectedConditions.elementToBeClickable(addCustomerButton));
         addCustomerBtn.click();
         wait.until(ExpectedConditions.urlToBe("https://www.globalsqa.com/angularJs-protractor/BankingProject/#/manager/addCust"));
     }
 
-    // Нажать кнопку Customers и дождаться изменения URL
+    @Step("Нажатие кнопки 'Customers'")
     public void clickCustomers() {
         WebElement customersBtn = wait.until(ExpectedConditions.elementToBeClickable(customersButton));
         customersBtn.click();

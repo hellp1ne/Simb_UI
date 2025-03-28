@@ -1,6 +1,7 @@
 package pageelements;
 
 import data.NewCustomerData;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -29,7 +30,7 @@ public class CustomersManagerPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    // Метод для удаления пользователя с пустым Account Number
+    @Step("Удаление пользователя с пустым номером счета")
     public void deleteUserWithEmptyAccountNumber() {
         List<WebElement> accountNumbers = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(accountNumberColumn));
         List<WebElement> deleteBtns = driver.findElements(deleteButtons);
@@ -43,7 +44,7 @@ public class CustomersManagerPage {
         }
     }
 
-    // Метод для удаления пользователя со средней длиной имени с возвратом его данных
+    @Step("Удаление пользователя со средней длиной имени")
     public NewCustomerData.CustomerData deleteUserWithAverageNameLength() {
         // Получаем все элементы с явным ожиданием
         List<WebElement> firstNameElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn));
@@ -103,7 +104,7 @@ public class CustomersManagerPage {
         return null;
     }
 
-    // Метод для проверки сортировки по FirstName
+    @Step("Проверка сортировки по имени")
     public boolean verifyFirstNameSorting() {
         WebElement sortBtn = wait.until(ExpectedConditions.elementToBeClickable(firstNameSortButton));
 
@@ -123,7 +124,7 @@ public class CustomersManagerPage {
         return namesAfterSort.equals(expectedSortedNames);
     }
 
-    // Метод для поиска пользователя по имени
+    @Step("Поиск пользователя по имени: {firstName}")
     public boolean searchCustomerByName(String firstName) {
         WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(searchField));
         searchInput.clear();
@@ -140,18 +141,18 @@ public class CustomersManagerPage {
         return false;
     }
 
-    // Метод для проверки наличия пользователя в таблице
+    @Step("Проверка наличия пользователя с именем: {firstName}")
     public boolean isCustomerPresent(String firstName) {
         List<WebElement> firstNames = driver.findElements(firstNameColumn);
-        for (WebElement name : firstNames) {
-            if (name.getText().equals(firstName)) {
+        for (int i = 0; i < firstNames.size(); i++) {
+            if (firstNames.get(i).getText().equals(firstName)) {
                 return true;
             }
         }
         return false;
     }
 
-    // Метод для очистки поля поиска
+    @Step("Очистка поля поиска")
     public void clearSearch() {
         WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(searchField));
         searchInput.clear();

@@ -1,11 +1,14 @@
 package tests;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.*;
 
 public class AverageCustomerDeletionTest extends BaseTest {
 
-
     @Test
+    @DisplayName("Удаление клиента со средней длиной имени")
+    @Description("Проверка удаления клиента, чье имя имеет длину, наиболее близкую к средней")
     public void shouldDeleteAndRecreateCustomerSuccessfully() {
         // 1. Клик по кнопке Customers
         mainManagerPage.clickCustomers();
