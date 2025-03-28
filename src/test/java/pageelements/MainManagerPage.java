@@ -9,7 +9,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class MainManagerPage {
-    private final WebDriver driver;
     private final WebDriverWait wait;
 
     // Локаторы элементов
@@ -17,7 +16,6 @@ public class MainManagerPage {
     private final By customersButton = By.xpath("//button[contains(text(),'Customers')]");
 
     public MainManagerPage(WebDriver driver) {
-        this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 

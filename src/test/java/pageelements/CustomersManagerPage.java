@@ -140,27 +140,11 @@ public class CustomersManagerPage {
         return false;
     }
 
-    // Метод для получения всех имен пользователей
-    public List<String> getAllFirstNames() {
-        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(firstNameColumn))
-                .stream()
-                .map(WebElement::getText)
-                .collect(Collectors.toList());
-    }
-
-    // Метод для получения всех номеров счетов
-    public List<String> getAllAccountNumbers() {
-        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(accountNumberColumn))
-                .stream()
-                .map(WebElement::getText)
-                .collect(Collectors.toList());
-    }
-
     // Метод для проверки наличия пользователя в таблице
     public boolean isCustomerPresent(String firstName) {
         List<WebElement> firstNames = driver.findElements(firstNameColumn);
-        for (int i = 0; i < firstNames.size(); i++) {
-            if (firstNames.get(i).getText().equals(firstName)) {
+        for (WebElement name : firstNames) {
+            if (name.getText().equals(firstName)) {
                 return true;
             }
         }
