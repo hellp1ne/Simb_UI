@@ -16,14 +16,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
 
-/**
- * Базовый класс для всех тестов, содержащий общую логику инициализации и завершения работы.
- * Обеспечивает:
- * - Загрузку конфигурации из файла
- * - Инициализацию WebDriver
- * - Управление тестовыми данными
- * - Общие методы для работы с URL
- */
 public abstract class BaseTest {
     protected static WebDriver driver;
     protected static WebDriverWait wait;
@@ -33,16 +25,6 @@ public abstract class BaseTest {
     protected static GenerationCustomerData.CustomerData testCustomerData;
     protected static Properties properties;
 
-    /**
-     * Метод инициализации перед всеми тестами класса.
-     * Выполняет:
-     * 1. Загрузку конфигурации из файла config.properties
-     * 2. Инициализацию WebDriver для указанного браузера
-     * 3. Максимизацию окна браузера
-     * 4. Инициализацию Page Objects
-     *
-     * @throws RuntimeException если не удалось загрузить конфигурационный файл
-     */
     @BeforeClass
     public static void setUpClass() {
         properties = new Properties();
@@ -65,20 +47,12 @@ public abstract class BaseTest {
         addingCustomerManagerPage = new AddingCustomerManagerPage(driver);
     }
 
-    /**
-     * Метод инициализации перед каждым тестом.
-     * Генерирует новые тестовые данные для каждого тестового метода.
-     */
     @Before
     public void setUpTest() {
         GenerationCustomerData customerData = new GenerationCustomerData();
         testCustomerData = customerData.generateCustomerData();
     }
 
-    /**
-     * Метод завершения работы после всех тестов класса.
-     * Закрывает браузер и освобождает ресурсы WebDriver.
-     */
     @AfterClass
     public static void tearDownClass() {
         if (driver != null) {
@@ -86,12 +60,6 @@ public abstract class BaseTest {
         }
     }
 
-    /**
-     * Формирует полный URL на основе базового адреса и пути из конфигурации.
-     *
-     * @param pathProperty имя свойства, содержащего путь
-     * @return полный URL (базовый адрес + путь)
-     */
     public static String getFullUrl(String pathProperty) {
         return properties.getProperty("base.url") + properties.getProperty(pathProperty);
     }
