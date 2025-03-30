@@ -9,7 +9,7 @@ public class WebDriverFactory {
     public static Browser getBrowser(String browserName) {
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/config.properties"));
+            properties.load(new FileInputStream("src/test/resources/config.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

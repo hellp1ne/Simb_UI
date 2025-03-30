@@ -13,7 +13,6 @@ public class ChromeBrowser implements Browser {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
-        //options.addArguments("--headless");
         return new ChromeDriver(options);
     }
 }

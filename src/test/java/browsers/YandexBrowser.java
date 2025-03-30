@@ -14,7 +14,7 @@ public class YandexBrowser implements Browser {
     public WebDriver createDriver() {
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/config.properties"));
+            properties.load(new FileInputStream("src/test/resources/config.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
